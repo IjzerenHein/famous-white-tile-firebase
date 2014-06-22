@@ -32,7 +32,7 @@ define(function (require, exports, module) {
     
     // import dependencies
     var Engine = require('famous/core/Engine');
-    var AppView = require('AppView');
+    var AppView = require('./AppView');
 
     // create the main context
     var mainContext = Engine.createContext();

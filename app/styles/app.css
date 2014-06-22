@@ -2,6 +2,10 @@ html {
   background: #fff;
 }
 
+html, div {
+    font-family: Helvetica;
+}
+
 .backfaceVisibility {
   -webkit-backface-visibility: visible;
   backface-visibility: visible;
@@ -10,8 +14,79 @@ html {
 .cell {
     background-color: white;
     border: 1px solid black;
+    cursor: default;
 }
 
-.black {
+.cell div {
+    position: relative;
+    top: 50%;
+    -webkit-transform: translateY(-50%);
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+    text-align: center;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.cell.black {
     background-color: black;
+}
+
+.cell.black.clicked {
+    background-color: #2AFF8A;
+}
+
+.cell.fault {
+    background-color: #FF4327;
+}
+
+.cell.missed {
+    background-color: #AAAAAA;
+}
+
+.cell.yellow {
+    background-color: #E8C90F;
+}
+
+.counter {
+    background-color: rgba(180, 180, 180, 0.95);
+    border-radius: 10px;
+    pointer-events: none;
+}
+
+.counter div {
+    position: relative;
+    top: 50%;
+    -webkit-transform: translateY(-50%);
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+    text-align: center;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.end {
+    background-color: #FF4327;
+    z-index: 100;
+}
+.end-button {
+    z-index: 101;
+    color: white;
+    text-align: center;
+    font-weight: bold;
+}
+.end-button.restart {
+    font-size: 36px;
+    cursor: default;
+}
+.end-button.score {
+    font-size: 50px;
+    pointer-events: none;
+}
+.end-button.footer {
+    font-size: 12px;
+    pointer-events: none;
 }
