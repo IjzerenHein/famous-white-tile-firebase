@@ -1,8 +1,8 @@
 {
-  "name": "white-tile",
-  "description": "White-tile game.",
+  "name": "famous-white-tile",
+  "description": "Famo.us implementation of the popular white-tile game.",
   "version": "0.1.0",
-  "homepage": "https://github.com/IjzerenHein/white-tile",
+  "homepage": "https://github.com/IjzerenHein/famous-white-tile",
   "authors": [{
     "name": "IjzerenHein",
     "url": "http://github.com/IjzerenHein/"
@@ -12,9 +12,10 @@
     "amd"
   ],
   "keywords": [
-    "famo.us"
+    "famo.us",
+    "white-tile"
   ],
-  "license": "ISC",
+  "license": "MIT",
   "private": true,
   "ignore": [
     "**/.*",

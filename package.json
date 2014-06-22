@@ -1,19 +1,19 @@
 {
-  "name": "white-tile",
-  "description": "White-tile game.",
+  "name": "famous-white-tile",
+  "description": "Famo.us implementation of the popular white-tile game.",
   "version": "0.1.0",
-  "homepage": "https://github.com/IjzerenHein/white-tile",
+  "homepage": "https://github.com/IjzerenHein/famous-white-tile",
   "author": {
     "name": "IjzerenHein",
     "url": "http://github.com/IjzerenHein/"
   },
-  "license": "ISC",
+  "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git://github.com/IjzerenHein/white-tile.git"
+    "url": "git://github.com/IjzerenHein/famous-white-tile.git"
   },
   "bugs": {
-    "url": "https://github.com/IjzerenHein/white-tile/issues"
+    "url": "https://github.com/IjzerenHein/famous-white-tile/issues"
   },
   "engines": {
     "node": ">= 0.10.0"
