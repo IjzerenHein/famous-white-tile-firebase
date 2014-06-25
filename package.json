@@ -1,7 +1,7 @@
 {
   "name": "famous-white-tile",
   "description": "Famo.us implementation of the popular white-tile game.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "homepage": "https://github.com/IjzerenHein/famous-white-tile",
   "author": {
     "name": "IjzerenHein",

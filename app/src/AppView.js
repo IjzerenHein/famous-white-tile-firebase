@@ -56,9 +56,29 @@ define(function (require, exports, module) {
         // Init
         this.transitionable = new Transitionable(0);
         this.modifier = new StateModifier();
-        var renderable = this.add(this.modifier);
+        this.renderable = this.add(this.modifier);
         
         // Create rows
+        this._createRows();
+        this._createCounter();
+        this._createEndScreen();
+        
+        // Reset
+        this.reset();
+    }
+    AppView.prototype = Object.create(View.prototype);
+    AppView.prototype.constructor = AppView;
+
+    AppView.DEFAULT_OPTIONS = {
+        rows: 4,
+        cells: 4,
+        godMode: false // basically, you never die when you enable this ;)
+    };
+    
+    /**
+     * @method _createRows
+     */
+    AppView.prototype._createRows = function () {
         this.rows = [];
         var i, j;
         for (i = 0; i <= this.options.rows; i++) {
@@ -91,11 +111,15 @@ define(function (require, exports, module) {
                 renderables.push(cell.renderable);
             }
             row.grid.sequenceFrom(renderables);
-            renderable.add(row.modifier).add(row.grid);
+            this.renderable.add(row.modifier).add(row.grid);
             this.rows.push(row);
         }
-                
-        // Create counter
+    };
+    
+    /**
+     * @method _createCounter
+     */
+    AppView.prototype._createCounter = function () {
         this.counter = {
             score: 0,
             modifier: new Modifier({
@@ -108,9 +132,13 @@ define(function (require, exports, module) {
                 classes: ['counter']
             })
         };
-        renderable.add(this.counter.modifier).add(this.counter.surface);
-        
-        // Create end-screen
+        this.renderable.add(this.counter.modifier).add(this.counter.surface);
+    };
+    
+    /**
+     * @method _createEndScreen
+     */
+    AppView.prototype._createEndScreen = function () {
         this.end = {
             renderController: new RenderController(),
             modifier: new Modifier(),
@@ -151,19 +179,9 @@ define(function (require, exports, module) {
         this.end.restartSurface.on('click', this.restart.bind(this));
         this.end.renderable.add(this.end.scoreModifier).add(this.end.scoreSurface);
         this.end.renderable.add(this.end.footerModifier).add(this.end.footerSurface);
-        renderable.add(this.end.renderController);
-        
-        // Reset
-        this.reset();
-    }
-    AppView.prototype = Object.create(View.prototype);
-    AppView.prototype.constructor = AppView;
-
-    AppView.DEFAULT_OPTIONS = {
-        rows: 4,
-        cells: 4
+        this.renderable.add(this.end.renderController);
     };
-        
+    
     /**
      * @method reset
      */
@@ -273,7 +291,7 @@ define(function (require, exports, module) {
         }
                 
         // Stop the game when a white cell was pressed
-        if (tile.black !== cellIndex) {
+        if (!this.options.godMode && (tile.black !== cellIndex)) {
             this.stop();
             var cell = this.rows[rowIndex].cells[cellIndex];
             cell.surface.addClass('fault');
@@ -290,7 +308,7 @@ define(function (require, exports, module) {
         
         // Ingore clicks on black-tiles if the previous tile is not already black
         var prevTile = this._getTile(tileIndex - 1);
-        if (prevTile.clicked < 0) {
+        if (!this.options.godMode && (prevTile.clicked < 0)) {
             return;
         }
         
@@ -406,7 +424,7 @@ define(function (require, exports, module) {
         }
         
         // Check if the player missed the tile
-        if (this._isRunning && (offset > 1)) {
+        if (this._isRunning && !this.options.godMode && (offset > 1)) {
             var prevTile = this._getTile(offset - 1);
             if (prevTile.clicked < 0) {
                 this.stop();
