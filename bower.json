@@ -3,10 +3,12 @@
   "description": "Famo.us implementation of the popular white-tile game.",
   "version": "0.1.1",
   "homepage": "https://github.com/IjzerenHein/famous-white-tile",
-  "authors": [{
-    "name": "IjzerenHein",
-    "url": "http://github.com/IjzerenHein/"
-  }],
+  "authors": [
+    {
+      "name": "IjzerenHein",
+      "url": "http://github.com/IjzerenHein/"
+    }
+  ],
   "main": "app/index.html",
   "moduleType": [
     "amd"
@@ -28,6 +30,9 @@
     "requirejs": "~2.1.11",
     "almond": "~0.2.9",
     "famous-polyfills": "git+https://github.com/Famous/polyfills.git#0.1.1",
-    "famous": "~0.2.1"
+    "famous": "~0.2.1",
+    "firebase": "~1.0.17",
+    "famous-sizemodifier": "latest",
+    "famous-boxlayout": "~0.0.3"
   }
 }

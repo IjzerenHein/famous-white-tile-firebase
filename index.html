@@ -19,11 +19,18 @@
         <link rel="stylesheet" type="text/css" href="https://code.famo.us/famous/0.2/famous.css" />
         <script type="text/javascript" src="https://code.famo.us/famous/0.2/famous.min.js"></script>
 
+        <!-- firebase -->
+        <script type='text/javascript' src='https://cdn.firebase.com/js/client/1.0.17/firebase.js'></script>
+        
         <!-- app code -->
         <link rel="stylesheet" type="text/css" href="app/styles/app.css" />
         <script type="text/javascript">
             require.config({
-                baseUrl: ''
+                baseUrl: '',
+                paths: {
+                    'famous-sizemodifier': 'https://rawgit.com/IjzerenHein/famous-sizemodifier/master/SizeModifier',
+                    'famous-boxlayout': 'https://rawgit.com/IjzerenHein/famous-boxlayout/master/BoxLayout'
+                }
             });
             require(['app/src/main']);
         </script>

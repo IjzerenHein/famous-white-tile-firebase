@@ -35,12 +35,18 @@ define(function(require, exports, module) {
     var Surface = require('famous/core/Surface');
     var Transform = require('famous/core/Transform');
     var View = require('famous/core/View');
+    var InputSurface = require('famous/surfaces/InputSurface');
 
     var StateModifier = require('famous/modifiers/StateModifier');
     var Easing = require('famous/transitions/Easing');
     var Transitionable = require('famous/transitions/Transitionable');
     var GridLayout = require('famous/views/GridLayout');
     var RenderController = require('famous/views/RenderController');
+    var ScrollContainer = require('famous/views/ScrollContainer');
+    var FlexibleLayout = require('famous/views/FlexibleLayout');
+
+    var BoxLayout = require('famous-boxlayout');
+    var SizeModifier = require('famous-sizemodifier');
 
     /**
      * AppView
@@ -134,51 +140,242 @@ define(function(require, exports, module) {
     };
 
     /**
-     * @method _createEndScreen
+     *
      */
     AppView.prototype._createEndScreen = function() {
         this.end = {
-            renderController: new RenderController(),
-            modifier: new Modifier(),
-            backSurface: new Surface({
-                classes: ['end']
-            }),
-            restartModifier: new Modifier({
-                size: [undefined, 60],
-                align: [0.5, 0.5],
-                origin: [0.5, 0.5]
-            }),
-            restartSurface: new Surface({
-                classes: ['end-button', 'restart'],
-                content: 'Restart'
-            }),
-            scoreModifier: new Modifier({
-                size: [undefined, 200],
-                align: [0.5, 0.3],
-                origin: [0.5, 0.3]
-            }),
-            scoreSurface: new Surface({
-                classes: ['end-button', 'score'],
-                content: 'Score'
-            }),
-            footerModifier: new Modifier({
-                size: [undefined, 30],
-                align: [1.0, 1.0],
-                origin: [1.0, 1.0]
-            }),
-            footerSurface: new Surface({
-                classes: ['end-button', 'footer'],
-                content: '© 2014 - IjzerenHein'
-            })
-        };
-        this.end.renderable = new RenderNode(this.end.modifier);
-        this.end.renderable.add(this.end.backSurface);
-        this.end.renderable.add(this.end.restartModifier).add(this.end.restartSurface);
-        this.end.restartSurface.on('click', this.restart.bind(this));
-        this.end.renderable.add(this.end.scoreModifier).add(this.end.scoreSurface);
-        this.end.renderable.add(this.end.footerModifier).add(this.end.footerSurface);
+            renderController: new RenderController()
+        }
+        var modifier = new Modifier({
+            align: [0.5, 0.5],
+            origin: [0.5, 0.5],
+            size: [300, undefined]
+        });
+        var flexibleLayout = new FlexibleLayout({
+            ratios: [true, true, true, true, true, 1, true, true, true],
+            direction: 1
+        });
+        flexibleLayout.sequenceFrom([
+            this._createNewScore(),
+            this._createUsername(),
+            new RenderNode(new Modifier({size: [undefined, 20]})),
+            this._createYourHighscore(),
+            new RenderNode(new Modifier({size: [undefined, 10]})),
+            this._createHighscores(),
+            new RenderNode(new Modifier({size: [undefined, 10]})),
+            this._createRestartButton(),
+            this._createFooter()
+        ]);
+        this.end.renderable = new RenderNode();
+        this.end.renderable.add(new Surface({
+            classes: ['end']
+        }));
+        this.end.renderable.add(modifier).add(flexibleLayout);
         this.renderable.add(this.end.renderController);
-    };
+    }
+
+    /**
+     *
+     */
+    AppView.prototype._createYourHighscore = function() {
+        var modifier = new Modifier({
+            size: [undefined, 30]
+        });
+        var renderable = new RenderNode(modifier);
+        var boxLayout = new BoxLayout({
+            margins: [0, 50, 0, 0]
+        });
+        boxLayout.middle.add(new Surface({
+            content: 'Your highscore:',
+            classes: ['end-button', 'highscore']
+        }));
+        this.yourScoreSurface = new Surface({
+            content: '',
+            classes: ['end-button', 'highscore'],
+            properties: {
+                textAlign: 'center'
+            }
+        });
+        boxLayout.right.add(this.yourScoreSurface);
+        renderable.add(boxLayout);
+        return renderable;
+    }
+        
+    /**
+     *
+     */
+    AppView.prototype._createHighscore = function(highscore, index) {
+        var modifier = new Modifier({
+            size: [undefined, 30]
+        });
+        var renderable = new RenderNode(modifier);
+        var boxLayout = new BoxLayout({
+            margins: [0, 50, 0, 40]
+        });
+        boxLayout.left.add(new Surface({
+            content: index + '.',
+            classes: ['end-button', 'highscore']
+        }));
+        boxLayout.middle.add(new Surface({
+            content: highscore.name(),
+            classes: ['end-button', 'highscore']
+        }));
+        boxLayout.right.add(new Surface({
+            content: highscore.val(),
+            classes: ['end-button', 'highscore'],
+            properties: {
+                textAlign: 'center'
+            }
+        }));
+        renderable.add(boxLayout);
+        return renderable;
+    }
+
+    /**
+     *
+     */
+    AppView.prototype._createHighscores = function() {
+        this.highscores = {
+            firebaseRef: new Firebase('https://white-tile.firebaseio.com/highscores'),
+            scrollContainer: new ScrollContainer({
+                scrollview: {
+                    direction: 1
+                },
+                container: {
+                    classes: ['end-button']
+                }
+            })
+        }
+        var boxLayout = new BoxLayout({
+            margins: [10, 0, 10]
+        });
+        boxLayout.middle.add(this.highscores.scrollContainer);
+        this.highscores.renderable = new RenderNode();
+        this.highscores.renderable.add(boxLayout);
+        this.highscores.firebaseRef.endAt().limit(25).on('value', function(highscores) {
+            var renderables = [];
+            var index = 1;
+            highscores.forEach(function(highscore) {
+                renderables.push(this._createHighscore(highscore, index));
+                index++;
+            }.bind(this));
+            this.highscores.scrollContainer.sequenceFrom(renderables);
+        }.bind(this));
+        return this.highscores.renderable;
+    }
+
+    /**
+     *
+     */
+    AppView.prototype._createNewScore = function() {
+         var modifier = new Modifier({
+            size: [undefined, 80],
+            align: [0.5, 0.5],
+            origin: [0.5, 0.5]
+        });
+        var surface = new Surface({
+            classes: ['end-button', 'score'],
+            content: 'Your score: 999'
+        });
+        this.scoreSurface = surface;
+        var renderable = new RenderNode(modifier);
+        renderable.add(surface);
+        return renderable;
+    }
+
+    /**
+     *
+     */
+    AppView.prototype._createUsername = function() {
+         var modifier = new Modifier({
+            size: [undefined, 50],
+            align: [0.5, 0.5],
+            origin: [0.5, 0.5]
+        });
+        var surface = new InputSurface({
+            classes: ['end-button', 'username'],
+            placeholder: 'enter name',
+            value: localStorage.name
+        });
+        surface.on('blur', function() {
+            localStorage.name = surface.getValue();
+            surface.setValue(localStorage.name);
+            this._submitHighscore();
+        }.bind(this));
+        surface.on('keyup', function(e) {
+            if (e.keyCode === 13) {
+                localStorage.name = surface.getValue();
+                surface.setValue(localStorage.name);
+                this._submitHighscore();
+            }
+        }.bind(this));
+        var renderable = new RenderNode(modifier);
+        renderable.add(surface);
+        return renderable;
+    }
+
+    /**
+     *
+     */
+    AppView.prototype._createRestartButton = function() {
+         var modifier = new Modifier({
+            size: [200, 60],
+            align: [0.5, 0.5],
+            origin: [0.5, 0.5]
+        });
+        var surface = new Surface({
+            classes: ['end-button', 'restart'],
+            content: 'Restart'
+        });
+        surface.on('click', this.restart.bind(this));
+        var renderable = new RenderNode(modifier);
+        renderable.add(surface);
+        return renderable;
+    }
+
+    /**
+     *
+     */
+    AppView.prototype._createFooter = function() {
+         var modifier = new Modifier({
+            align: [0.5, 0.5],
+            origin: [0.5, 0.5],
+            size: [undefined, 40]
+        });
+        var surface = new Surface({
+            classes: ['end-button', 'footer'],
+            content: '© 2014 - IjzerenHein'
+        });
+        var renderable = new RenderNode(modifier);
+        renderable.add(surface);
+        return renderable;
+    }
+
+    /**
+     *
+     */
+    AppView.prototype._submitHighscore = function() {
+        var name = localStorage.name;
+        if (!name || name === '' || this._highScoreSubmitted) return;
+        var newScore = this.counter.score;
+        var newScoreRef = this.highscores.firebaseRef.child(name);
+        this._highScoreSubmitted = true;
+        newScoreRef.transaction(function(currentScore) {
+            if (currentScore > newScore) {
+                return undefined;
+            }
+            return newScore;
+        },
+        function(error, commited, snapshot) {
+            if (!error && commited) {
+                newScoreRef.setPriority(-newScore);
+            }
+        });
+        
+        newScoreRef.once('value', function(snapshot) {
+            this.yourScoreSurface.setContent(snapshot.val());
+        }.bind(this));
+    }
 
     /**
      * @method reset
@@ -189,6 +386,8 @@ define(function(require, exports, module) {
         this.transitionable.reset(0);
         this._isRunning = false;
         this._isStopped = false;
+        this._highScoreSubmitted = false;
+        this.yourScoreSurface.setContent('');
 
         // Reset rows
         for (var i = 0; i < this.rows.length; i++) {
@@ -203,7 +402,7 @@ define(function(require, exports, module) {
 
         // Generate start tiles
         this.blackTiles = [{black: -2, clicked: -1}]; // first line is yellow
-        for (i = 0; i < 10; i++) {
+        for (var i = 0; i < 10; i++) {
             this._getTile(i);
         }
 
@@ -234,8 +433,9 @@ define(function(require, exports, module) {
      * @method showEnd
      */
     AppView.prototype.showEnd = function() {
-        this.end.scoreSurface.setContent(this.counter.score);
+        this.scoreSurface.setContent('Your score: ' + this.counter.score);
         this.end.renderController.show(this.end.renderable);
+        this._submitHighscore();
     };
 
     /**

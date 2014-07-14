@@ -1,11 +1,11 @@
-famous-white-tile
+famous-white-tile-firebase
 ==========
 
-Famo.us implementation of the popular white-tile game.
+Famo.us implementation of the popular white-tile game, including highscore system using firebase.
 
 ## Demo
 
-[Play the game here](https://rawgit.com/IjzerenHein/famous-white-tile/master/index.html)
+[Play the game here](https://rawgit.com/IjzerenHein/famous-white-tile-firebase/master/index.html)
 
 ## Screenshot
 

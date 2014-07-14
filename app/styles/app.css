@@ -77,16 +77,35 @@ html, div {
     color: white;
     text-align: center;
     font-weight: bold;
-}
-.end-button.restart {
     font-size: 36px;
-    cursor: default;
+}
+::-webkit-input-placeholder {
+    color: #D0D0D0;
+    font-family: Helvetica;
+}
+
+.end-button.username {
+    border-radius: 5px;
+    color: black;
+    font-size: 26px;
+    border: none;
+}
+.end-button.highscore {
+    font-size: 26px;
+    text-align: left;
 }
 .end-button.score {
-    font-size: 50px;
     pointer-events: none;
+    padding-top: 20px;
+}
+.end-button.restart {
+    cursor: default;
+    border: 1px solid white;
+    border-radius: 5px;
+    padding-top: 8px;
 }
 .end-button.footer {
     font-size: 12px;
     pointer-events: none;
+    padding-top: 15px;
 }
