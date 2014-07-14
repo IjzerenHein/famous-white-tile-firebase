@@ -1,16 +1,16 @@
-/* 
+/*
  * Copyright (c) 2014 Gloey Apps
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -18,16 +18,15 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- * 
+ *
  * @author: Hein Rutjes (IjzerenHein)
  * @license MIT
  * @copyright Gloey Apps, 2014
  */
 
-/*jslint browser:true, nomen:true, vars:true, plusplus:true*/
 /*global define*/
 
-define(function (require, exports, module) {
+define(function(require, exports, module) {
     'use strict';
 
     // import dependencies
@@ -36,7 +35,7 @@ define(function (require, exports, module) {
     var Surface = require('famous/core/Surface');
     var Transform = require('famous/core/Transform');
     var View = require('famous/core/View');
-    
+
     var StateModifier = require('famous/modifiers/StateModifier');
     var Easing = require('famous/transitions/Easing');
     var Transitionable = require('famous/transitions/Transitionable');
@@ -52,17 +51,17 @@ define(function (require, exports, module) {
      */
     function AppView(options) {
         View.apply(this, arguments);
-        
+
         // Init
         this.transitionable = new Transitionable(0);
         this.modifier = new StateModifier();
         this.renderable = this.add(this.modifier);
-        
+
         // Create rows
         this._createRows();
         this._createCounter();
         this._createEndScreen();
-        
+
         // Reset
         this.reset();
     }
@@ -74,14 +73,13 @@ define(function (require, exports, module) {
         cells: 4,
         godMode: false // basically, you never die when you enable this ;)
     };
-    
+
     /**
      * @method _createRows
      */
-    AppView.prototype._createRows = function () {
+    AppView.prototype._createRows = function() {
         this.rows = [];
-        var i, j;
-        for (i = 0; i <= this.options.rows; i++) {
+        for (var i = 0; i <= this.options.rows; i++) {
             var row = {
                 modifier: new Modifier({
                     size: [undefined, undefined]
@@ -94,7 +92,7 @@ define(function (require, exports, module) {
                 clickedTile: -1
             };
             var renderables = [];
-            for (j = 0; j < this.options.cells; j++) {
+            for (var j = 0; j < this.options.cells; j++) {
                 var cell = {
                     modifier: new StateModifier({
                         size: [undefined, undefined]
@@ -115,11 +113,11 @@ define(function (require, exports, module) {
             this.rows.push(row);
         }
     };
-    
+
     /**
      * @method _createCounter
      */
-    AppView.prototype._createCounter = function () {
+    AppView.prototype._createCounter = function() {
         this.counter = {
             score: 0,
             modifier: new Modifier({
@@ -134,11 +132,11 @@ define(function (require, exports, module) {
         };
         this.renderable.add(this.counter.modifier).add(this.counter.surface);
     };
-    
+
     /**
      * @method _createEndScreen
      */
-    AppView.prototype._createEndScreen = function () {
+    AppView.prototype._createEndScreen = function() {
         this.end = {
             renderController: new RenderController(),
             modifier: new Modifier(),
@@ -181,42 +179,41 @@ define(function (require, exports, module) {
         this.end.renderable.add(this.end.footerModifier).add(this.end.footerSurface);
         this.renderable.add(this.end.renderController);
     };
-    
+
     /**
      * @method reset
      */
-    AppView.prototype.reset = function () {
-        var i, j;
-        
+    AppView.prototype.reset = function() {
+
         // Reset state
         this.transitionable.reset(0);
         this._isRunning = false;
         this._isStopped = false;
-        
+
         // Reset rows
-        for (i = 0; i < this.rows.length; i++) {
+        for (var i = 0; i < this.rows.length; i++) {
             var row = this.rows[i];
             row.blackTile = -1;
             row.clickedTile = -1;
-            for (j = 0; j < row.cells.length; j++) {
+            for (var j = 0; j < row.cells.length; j++) {
                 var cell = row.cells[j];
                 cell.surface.setClasses(['cell']);
             }
         }
-        
+
         // Generate start tiles
         this.blackTiles = [{black: -2, clicked: -1}]; // first line is yellow
         for (i = 0; i < 10; i++) {
             this._getTile(i);
         }
-    
+
         // Set 'start' in first black tile
         this.rows[1].cells[this._getTile(1).black].surface.setContent('<div>Start</div>');
-        
+
         // Reset counter
         this.counter.score = 0;
         this.counter.surface.setContent('<div>' + this.counter.score + '</div>');
-    
+
         // Show playing field
         this.modifier.setTransform(Transform.translate(0, -window.innerHeight, 0));
         this.modifier.setTransform(
@@ -224,27 +221,27 @@ define(function (require, exports, module) {
             {duration: 300, curve: Easing.outBack}
         );
     };
-    
+
     /**
      * @method restart
      */
-    AppView.prototype.restart = function () {
+    AppView.prototype.restart = function() {
         this.end.renderController.hide();
         this.reset();
     };
-    
+
     /**
      * @method showEnd
      */
-    AppView.prototype.showEnd = function () {
+    AppView.prototype.showEnd = function() {
         this.end.scoreSurface.setContent(this.counter.score);
         this.end.renderController.show(this.end.renderable);
     };
-    
+
     /**
      * @method _getTile
      */
-    AppView.prototype._getTile = function (index) {
+    AppView.prototype._getTile = function(index) {
         var i;
         for (i = this.blackTiles.length; i <= index; i++) {
             var tile = {
@@ -255,19 +252,19 @@ define(function (require, exports, module) {
         }
         return this.blackTiles[index];
     };
-    
+
     /**
      * @method _onClickCell
      */
-    AppView.prototype._onClickCell = function (rowIndex, cellIndex, event) {
-        
+    AppView.prototype._onClickCell = function(rowIndex, cellIndex, event) {
+
         event.preventDefault();
-        
+
         // Ignore cell-clicks when stopped
         if (this._isStopped) {
             return;
         }
-        
+
         // Get the clicked tile
         var offset = Math.floor(this.transitionable.get());
         var add = this.rows.length - (rowIndex + 1);
@@ -276,20 +273,20 @@ define(function (require, exports, module) {
 
         // Wait for player to click 'start'
         if (!this._isRunning) {
-            
+
             // When not running, start when the start-tile is clicked
             if ((tileIndex === 1) && (cellIndex === this._getTile(tileIndex).black)) {
                 tile.clicked = cellIndex;
                 this.rows[rowIndex].cells[this._getTile(tileIndex).black].surface.setContent('');
                 this.start();
-                
+
                 // Increase counter
                 this.counter.score += 1;
                 this.counter.surface.setContent('<div>' + this.counter.score + '</div>');
             }
             return;
         }
-                
+
         // Stop the game when a white cell was pressed
         if (!this.options.godMode && (tile.black !== cellIndex)) {
             this.stop();
@@ -305,25 +302,25 @@ define(function (require, exports, module) {
             cell.modifier.setOpacity(1, blink, this.showEnd.bind(this));
             return;
         }
-        
+
         // Ingore clicks on black-tiles if the previous tile is not already black
         var prevTile = this._getTile(tileIndex - 1);
         if (!this.options.godMode && (prevTile.clicked < 0)) {
             return;
         }
-        
+
         // Store click
         tile.clicked = cellIndex;
-        
+
         // Increase counter
         this.counter.score += 1;
         this.counter.surface.setContent('<div>' + this.counter.score + '</div>');
     };
-        
+
     /**
      * @method start
      */
-    AppView.prototype.start = function () {
+    AppView.prototype.start = function() {
         this.state = {
             count: 0,
             increment: 10,
@@ -336,11 +333,11 @@ define(function (require, exports, module) {
         );
         this._isRunning = true;
     };
-    
+
     /**
      * @method speedup
      */
-    AppView.prototype.speedup = function () {
+    AppView.prototype.speedup = function() {
         this.state.count += this.state.increment;
         this.state.duration = this.state.duration * 0.9;
         this.transitionable.set(
@@ -349,11 +346,11 @@ define(function (require, exports, module) {
             this.speedup.bind(this)
         );
     };
-    
+
     /**
      * @method stop
      */
-    AppView.prototype.stop = function () {
+    AppView.prototype.stop = function() {
         this.transitionable.halt();
         this._isRunning = false;
         this._isStopped = true;
@@ -367,10 +364,10 @@ define(function (require, exports, module) {
      * @ignore
      */
     AppView.prototype.render = function render() {
-                
+
         // Calculate stuff
         var rowHeight = window.innerHeight / this.options.rows;
-        var i, j, y = 0;
+        var y = 0;
         var rawOffset = this.transitionable.get();
         var offset = Math.floor(rawOffset);
         var start = offset % this.rows.length;
@@ -378,24 +375,24 @@ define(function (require, exports, module) {
         // Determine offset of bottom row
         var fraction = (rawOffset % 1) * rowHeight;
         y = ((window.innerHeight + fraction) - rowHeight);
-        
+
         // Update rows
-        for (i = 0; i < this.rows.length; i++) {
+        for (var i = 0; i < this.rows.length; i++) {
             var rowIndex = (i + start) % this.rows.length;
             var row = this.rows[rowIndex];
-                        
+
             // Set tile-color
             var tile = this._getTile(offset + i);
             if (row.blackTile !== tile.black) {
                 if (row.blackTile >= 0) {
                     row.cells[row.blackTile].surface.removeClass('black');
                 } else if (row.blackTile === -2) {
-                    for (j = 0; j < row.cells.length; j++) {
+                    for (var j = 0; j < row.cells.length; j++) {
                         row.cells[j].surface.removeClass('yellow');
                     }
                 }
                 if (tile.black === -2) {
-                    for (j = 0; j < row.cells.length; j++) {
+                    for (var j = 0; j < row.cells.length; j++) {
                         row.cells[j].surface.addClass('yellow');
                     }
                 } else if (tile.black !== -1) {
@@ -403,7 +400,7 @@ define(function (require, exports, module) {
                 }
                 row.blackTile = tile.black;
             }
-            
+
             // Set clicked color
             if (row.clickedTile !== tile.clicked) {
                 if (row.clickedTile >= 0) {
@@ -414,7 +411,7 @@ define(function (require, exports, module) {
                 }
                 row.clickedTile = tile.clicked;
             }
-            
+
             // Positions the row
             row.modifier.sizeFrom([undefined, rowHeight]);
             row.modifier.transformFrom(
@@ -422,7 +419,7 @@ define(function (require, exports, module) {
             );
             y -= rowHeight;
         }
-        
+
         // Check if the player missed the tile
         if (this._isRunning && !this.options.godMode && (offset > 1)) {
             var prevTile = this._getTile(offset - 1);
@@ -435,7 +432,7 @@ define(function (require, exports, module) {
                 var cell = this.rows[(offset - 1) % this.rows.length].cells[prevTile.black];
                 cell.surface.addClass('missed');
                 var blink = {duration: 200};
-                for (i = 0; i < 5; i++) {
+                for (var i = 0; i < 5; i++) {
                     cell.modifier.setOpacity(0, blink);
                     cell.modifier.setOpacity(1, blink);
                 }
@@ -443,10 +440,10 @@ define(function (require, exports, module) {
                 cell.modifier.setOpacity(1, blink, this.showEnd.bind(this));
             }
         }
-        
+
         // Call super
         return this._node.render();
     };
-        
+
     module.exports = AppView;
 });
