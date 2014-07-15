@@ -149,7 +149,9 @@ define(function(require, exports, module) {
         var modifier = new Modifier({
             align: [0.5, 0.5],
             origin: [0.5, 0.5],
-            size: [300, undefined]
+        });
+        var sizeModifier = new SizeModifier({
+            max: [500, undefined]
         });
         var flexibleLayout = new FlexibleLayout({
             ratios: [true, true, true, true, true, 1, true, true, true],
@@ -170,7 +172,9 @@ define(function(require, exports, module) {
         this.end.renderable.add(new Surface({
             classes: ['end']
         }));
-        this.end.renderable.add(modifier).add(flexibleLayout);
+        var boxLayout = new BoxLayout({ margins: [0, 20]});
+        boxLayout.middle.add(flexibleLayout);
+        this.end.renderable.add(modifier).add(sizeModifier).add(boxLayout);
         this.renderable.add(this.end.renderController);
     }
 
@@ -183,7 +187,7 @@ define(function(require, exports, module) {
         });
         var renderable = new RenderNode(modifier);
         var boxLayout = new BoxLayout({
-            margins: [0, 50, 0, 0]
+            margins: [0, 100, 0, 0]
         });
         boxLayout.middle.add(new Surface({
             content: 'Your highscore:',
@@ -193,7 +197,7 @@ define(function(require, exports, module) {
             content: '',
             classes: ['end-button', 'highscore'],
             properties: {
-                textAlign: 'center'
+                textAlign: 'right'
             }
         });
         boxLayout.right.add(this.yourScoreSurface);
@@ -210,7 +214,7 @@ define(function(require, exports, module) {
         });
         var renderable = new RenderNode(modifier);
         var boxLayout = new BoxLayout({
-            margins: [0, 50, 0, 40]
+            margins: [0, 100, 0, 40]
         });
         boxLayout.left.add(new Surface({
             content: index + '.',
@@ -224,7 +228,7 @@ define(function(require, exports, module) {
             content: highscore.val(),
             classes: ['end-button', 'highscore'],
             properties: {
-                textAlign: 'center'
+                textAlign: 'right'
             }
         }));
         renderable.add(boxLayout);
@@ -252,7 +256,7 @@ define(function(require, exports, module) {
         boxLayout.middle.add(this.highscores.scrollContainer);
         this.highscores.renderable = new RenderNode();
         this.highscores.renderable.add(boxLayout);
-        this.highscores.firebaseRef.endAt().limit(25).on('value', function(highscores) {
+        this.highscores.firebaseRef.startAt().limit(50).on('value', function(highscores) {
             var renderables = [];
             var index = 1;
             highscores.forEach(function(highscore) {
